@@ -334,6 +334,7 @@ function MiniPiece({
   );
 }
 
+// Home screen 
 export function BlokitoGame() {
   const colorScheme = useColorScheme();
   const { width } = useWindowDimensions();
@@ -476,6 +477,7 @@ export function BlokitoGame() {
             )}
           </View>
 
+{/* AVISO DE GAMER OVER */}  
           {gameOver && (
             <View style={styles.gameOverLayer}>
               <View style={styles.gameOverPanel}>
@@ -541,6 +543,7 @@ export function BlokitoGame() {
   );
 }
 
+// Lista de Peças
 export function PieceGallery() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
