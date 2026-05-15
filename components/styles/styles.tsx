@@ -111,6 +111,7 @@ export const styles = StyleSheet.create({
     borderRadius: 7,
     borderWidth: 1,
     justifyContent: 'center',
+    overflow: 'hidden',
     position: 'absolute',
   },
   dragPreviewCell: {
@@ -118,6 +119,7 @@ export const styles = StyleSheet.create({
     borderRadius: 7,
     borderWidth: 2,
     justifyContent: 'center',
+    overflow: 'hidden',
     position: 'absolute',
     zIndex: 20,
   },
@@ -200,6 +202,11 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     marginBottom: 3,
+    overflow: 'hidden',
+  },
+  blockCellImage: {
+    height: '100%',
+    width: '100%',
   },
   draggingPiece: {
     opacity: 0.92,
@@ -313,6 +320,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     height: 42,
     justifyContent: 'center',
+    overflow: 'hidden',
     width: 42,
   },
   storeActions: {

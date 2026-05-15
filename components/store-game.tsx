@@ -3,7 +3,7 @@ import { useBlokitoStore } from '@/contexts/blokito-store';
 import { styles } from '@/components/styles/styles';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
-import { Pressable, ScrollView, Text, useColorScheme, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export function Store() {
@@ -96,21 +96,31 @@ export function Store() {
                     borderColor: theme.boardBorder,
                   },
                 ]}>
-                {theme.palette.slice(0, 5).map((tone, index) => (
-                  <View
-                    key={`${theme.id}-${tone.color}-${index}`}
-                    style={[
-                      styles.themePreviewBlock,
-                      {
-                        backgroundColor: tone.color,
-                        borderColor: tone.glow,
-                      },
-                    ]}>
-                    {theme.blockIcon ? (
-                      <MaterialIcons name={theme.blockIcon} size={20} color="#FFFFFFAA" />
-                    ) : null}
-                  </View>
-                ))}
+                {theme.palette.slice(0, 5).map((tone, index) => {
+                  const previewImage = theme.blockImages?.[index % theme.blockImages.length];
+
+                  return (
+                    <View
+                      key={`${theme.id}-${tone.color}-${index}`}
+                      style={[
+                        styles.themePreviewBlock,
+                        {
+                          backgroundColor: tone.color,
+                          borderColor: tone.glow,
+                        },
+                      ]}>
+                      {previewImage ? (
+                        <Image
+                          source={previewImage}
+                          style={styles.blockCellImage}
+                          resizeMode="cover"
+                        />
+                      ) : theme.blockIcon ? (
+                        <MaterialIcons name={theme.blockIcon} size={20} color="#FFFFFFAA" />
+                      ) : null}
+                    </View>
+                  );
+                })}
               </View>
 
               <View style={styles.storeActions}>

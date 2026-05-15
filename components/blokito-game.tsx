@@ -1,11 +1,12 @@
 import { styles } from '@/components/styles/styles';
-import type { BlockTone } from '@/constants/blokito-themes';
+import type { BlockImageSource, BlockTone } from '@/constants/blokito-themes';
 import { useBlokitoStore } from '@/contexts/blokito-store';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
 import { useRef, useState } from 'react';
 import {
   Animated,
+  Image,
   PanResponder,
   Pressable,
   ScrollView,
@@ -18,13 +19,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const BOARD_SIZE = 8;
 const CELL_GAP = 5;
+const DRAG_THRESHOLD = 6;
 
 type Coord = {
   row: number;
   col: number;
 };
 
-type Board = (string | null)[][];
+type BoardCell = {
+  color: string;
+  glow: string;
+  image?: BlockImageSource;
+};
+
+type Board = (BoardCell | null)[][];
 
 type BoardFrame = {
   height: number;
@@ -39,6 +47,7 @@ type Piece = {
   cells: Coord[];
   color: string;
   glow: string;
+  image?: BlockImageSource;
 };
 
 type Shape = {
@@ -180,9 +189,14 @@ function randomFrom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
 
-function createPiece(index: number, palette: BlockTone[] = PALETTE): Piece {
+function createPiece(
+  index: number,
+  palette: BlockTone[] = PALETTE,
+  blockImages: BlockImageSource[] = []
+): Piece {
   const shape = randomFrom(SHAPES);
   const tone = randomFrom(palette);
+  const image = blockImages.length > 0 ? randomFrom(blockImages) : undefined;
 
   return {
     id: `${Date.now()}-${index}-${Math.random().toString(16).slice(2)}`,
@@ -190,11 +204,16 @@ function createPiece(index: number, palette: BlockTone[] = PALETTE): Piece {
     cells: shape.cells,
     color: tone.color,
     glow: tone.glow,
+    image,
   };
 }
 
-function createTray(palette: BlockTone[] = PALETTE) {
-  return [createPiece(0, palette), createPiece(1, palette), createPiece(2, palette)];
+function createTray(palette: BlockTone[] = PALETTE, blockImages: BlockImageSource[] = []) {
+  return [
+    createPiece(0, palette, blockImages),
+    createPiece(1, palette, blockImages),
+    createPiece(2, palette, blockImages),
+  ];
 }
 
 function cloneBoard(board: Board): Board {
@@ -220,7 +239,11 @@ function placePiece(board: Board, piece: Piece, origin: Coord) {
   const nextBoard = cloneBoard(board);
 
   piece.cells.forEach(({ row, col }) => {
-    nextBoard[origin.row + row][origin.col + col] = piece.color;
+    nextBoard[origin.row + row][origin.col + col] = {
+      color: piece.color,
+      glow: piece.glow,
+      image: piece.image,
+    };
   });
 
   return nextBoard;
@@ -335,8 +358,11 @@ function MiniPiece({
                     backgroundColor: piece.color,
                     borderColor: piece.glow,
                   },
-                ]}
-              />
+                ]}>
+                {isActive && piece.image ? (
+                  <Image source={piece.image} style={styles.blockCellImage} resizeMode="cover" />
+                ) : null}
+              </View>
             );
           })}
         </View>
@@ -356,8 +382,11 @@ export function BlokitoGame() {
   const miniCellSize = Math.max(13, Math.min(20, Math.floor(trayCardWidth / 5.4)));
   const boardRef = useRef<View>(null);
   const dragOffset = useRef(new Animated.ValueXY()).current;
+  const dragHasMoved = useRef(false);
   const [board, setBoard] = useState<Board>(() => createBoard());
-  const [pieces, setPieces] = useState<(Piece | null)[]>(() => createTray(activeTheme.palette));
+  const [pieces, setPieces] = useState<(Piece | null)[]>(() =>
+    createTray(activeTheme.palette, activeTheme.blockImages ?? [])
+  );
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
@@ -412,6 +441,7 @@ export function BlokitoGame() {
 
   function clearDragState() {
     dragOffset.setValue({ x: 0, y: 0 });
+    dragHasMoved.current = false;
     setDraggingIndex(null);
     setDraggingPiece(null);
     setDragOrigin(null);
@@ -419,7 +449,7 @@ export function BlokitoGame() {
   }
 
   function resetGame() {
-    const nextPieces = createTray(activeTheme.palette);
+    const nextPieces = createTray(activeTheme.palette, activeTheme.blockImages ?? []);
 
     setBoard(createBoard());
     setPieces(nextPieces);
@@ -459,7 +489,7 @@ export function BlokitoGame() {
     let nextPieces = pieces.map((currentPiece, index) => (index === pieceIndex ? null : currentPiece));
 
     if (nextPieces.every((piece) => piece === null)) {
-      nextPieces = createTray(activeTheme.palette);
+      nextPieces = createTray(activeTheme.palette, activeTheme.blockImages ?? []);
     }
 
     const firstAvailableIndex = nextPieces.findIndex(Boolean);
@@ -489,10 +519,15 @@ export function BlokitoGame() {
 
   const panResponders = [0, 1, 2].map((_, index) =>
     PanResponder.create({
+      onStartShouldSetPanResponder: () => Boolean(pieces[index]) && !gameOver,
+      onStartShouldSetPanResponderCapture: () => Boolean(pieces[index]) && !gameOver,
       onMoveShouldSetPanResponder: (_, gestureState) =>
         Boolean(pieces[index]) &&
         !gameOver &&
-        (Math.abs(gestureState.dx) > 6 || Math.abs(gestureState.dy) > 6),
+        (Math.abs(gestureState.dx) > DRAG_THRESHOLD ||
+          Math.abs(gestureState.dy) > DRAG_THRESHOLD),
+      onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
       onPanResponderGrant: (_, gestureState) => {
         const piece = pieces[index];
 
@@ -504,6 +539,7 @@ export function BlokitoGame() {
         setSelectedIndex(index);
         setDraggingIndex(index);
         setDraggingPiece(piece);
+        dragHasMoved.current = false;
         dragOffset.setValue({ x: 0, y: 0 });
         updateDragTarget(piece, gestureState.x0, gestureState.y0);
         Haptics.selectionAsync();
@@ -515,10 +551,22 @@ export function BlokitoGame() {
           return;
         }
 
+        if (
+          Math.abs(gestureState.dx) > DRAG_THRESHOLD ||
+          Math.abs(gestureState.dy) > DRAG_THRESHOLD
+        ) {
+          dragHasMoved.current = true;
+        }
+
         dragOffset.setValue({ x: gestureState.dx, y: gestureState.dy });
         updateDragTarget(piece, gestureState.moveX, gestureState.moveY);
       },
       onPanResponderRelease: (_, gestureState) => {
+        if (!dragHasMoved.current) {
+          clearDragState();
+          return;
+        }
+
         const origin = getOriginFromPagePoint(gestureState.moveX, gestureState.moveY);
 
         if (!origin) {
@@ -538,6 +586,7 @@ export function BlokitoGame() {
       <ScrollView
         contentContainerStyle={styles.screen}
         bounces={false}
+        scrollEnabled={!draggingPiece}
         showsVerticalScrollIndicator={false}>
         <View style={styles.topBar}>
           <View>
@@ -586,6 +635,7 @@ export function BlokitoGame() {
             },
           ]}>
           <View
+            collapsable={false}
             ref={boardRef}
             onLayout={handleBoardLayout}
             style={[styles.board, { width: boardSize, height: boardSize }]}>
@@ -604,12 +654,16 @@ export function BlokitoGame() {
                         height: boardCellSize,
                         left: colIndex * (boardCellSize + CELL_GAP),
                         top: rowIndex * (boardCellSize + CELL_GAP),
-                        backgroundColor: cell ?? (isDark ? activeTheme.emptyCellDark : activeTheme.emptyCell),
+                        backgroundColor:
+                          cell?.color ?? (isDark ? activeTheme.emptyCellDark : activeTheme.emptyCell),
                         borderColor: cell ? '#FFFFFF55' : isDark ? '#303946' : '#D8E0EA',
                         transform: [{ scale: pressed && selectedPiece ? 0.95 : 1 }],
                       },
                     ]}>
-                    {cell && activeTheme.blockIcon ? (
+                    {cell?.image ? (
+                      <Image source={cell.image} style={styles.blockCellImage} resizeMode="cover" />
+                    ) : null}
+                    {cell && !cell.image && activeTheme.blockIcon ? (
                       <MaterialIcons
                         name={activeTheme.blockIcon}
                         size={Math.max(15, Math.floor(boardCellSize * 0.46))}
@@ -650,7 +704,14 @@ export function BlokitoGame() {
                           opacity: dragCanPlace ? 0.48 : 0.24,
                         },
                       ]}>
-                      {activeTheme.blockIcon ? (
+                      {draggingPiece.image ? (
+                        <Image
+                          source={draggingPiece.image}
+                          style={styles.blockCellImage}
+                          resizeMode="cover"
+                        />
+                      ) : null}
+                      {!draggingPiece.image && activeTheme.blockIcon ? (
                         <MaterialIcons
                           name={activeTheme.blockIcon}
                           size={Math.max(15, Math.floor(boardCellSize * 0.46))}
@@ -687,20 +748,20 @@ export function BlokitoGame() {
             const disabled = !piece || gameOver;
 
             return (
-              <Pressable
+              <View
                 key={piece?.id ?? `empty-${index}`}
-                {...panResponders[index].panHandlers}
+                {...(!disabled ? panResponders[index].panHandlers : {})}
+                accessible
                 accessibilityRole="button"
                 accessibilityLabel={piece ? `Peça ${piece.label}` : 'Espaço vazio'}
-                disabled={disabled}
-                onPress={() => selectPiece(index)}
-                style={({ pressed }) => [
+                onAccessibilityTap={() => selectPiece(index)}
+                style={[
                   styles.pieceCard,
                   isDark && styles.pieceCardDark,
                   {
                     width: trayCardWidth,
                     borderColor: selected ? piece?.color : isDark ? '#2E3642' : '#DDE5EE',
-                    transform: [{ translateY: selected ? -8 : 0 }, { scale: pressed ? 0.98 : 1 }],
+                    transform: [{ translateY: selected ? -8 : 0 }],
                   },
                   !piece && styles.emptyPieceCard,
                 ]}>
@@ -717,7 +778,7 @@ export function BlokitoGame() {
                 ) : (
                   <View style={styles.emptyPieceDot} />
                 )}
-              </Pressable>
+              </View>
             );
           })}
         </View>
@@ -752,6 +813,7 @@ export function PieceGallery() {
     label: shape.label,
     cells: shape.cells,
     ...activeTheme.palette[index % activeTheme.palette.length],
+    image: activeTheme.blockImages?.[index % activeTheme.blockImages.length],
   }));
 
   return (

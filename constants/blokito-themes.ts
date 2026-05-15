@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react';
+import type { ImageSourcePropType } from 'react-native';
 
 import type MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
@@ -6,6 +7,8 @@ export type BlockTone = {
   color: string;
   glow: string;
 };
+
+export type BlockImageSource = ImageSourcePropType;
 
 export type BlockImageStyle = 'clean' | 'star' | 'bolt' | 'leaf' | 'gem';
 
@@ -21,6 +24,7 @@ export type BlokitoTheme = {
   emptyCellDark: string;
   trayBackground: string;
   blockImage: BlockImageStyle;
+  blockImages?: BlockImageSource[];
   blockIcon?: ComponentProps<typeof MaterialIcons>['name'];
   musicSource?: number;
   musicTitle?: string;
@@ -28,6 +32,114 @@ export type BlokitoTheme = {
 };
 
 export const DEFAULT_THEME_ID = 'classic';
+
+const POKEMON_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/2.png'),
+  require('../assets/images/3.png'),
+  require('../assets/images/4.png'),
+  require('../assets/images/5.png'),
+  require('../assets/images/6.png'),
+  require('../assets/images/7.png'),
+];
+
+const MINECRAFT_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/8.png'),
+  require('../assets/images/9.png'),
+  require('../assets/images/10.png'),
+  require('../assets/images/11.png'),
+  require('../assets/images/12.png'),
+  require('../assets/images/13.png'),
+];
+
+const EMOJI_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/14.png'),
+  require('../assets/images/15.png'),
+  require('../assets/images/16.png'),
+  require('../assets/images/17.png'),
+  require('../assets/images/18.png'),
+];
+
+const SPONGEBOB_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/19.png'),
+  require('../assets/images/26.png'),
+  require('../assets/images/27.png'),
+  require('../assets/images/28.png'),
+  require('../assets/images/29.png'),
+  require('../assets/images/30.png'),
+  require('../assets/images/31.png'),
+];
+
+const CAT_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/20.png'),
+  require('../assets/images/21.png'),
+  require('../assets/images/22.png'),
+  require('../assets/images/23.png'),
+  require('../assets/images/24.png'),
+  require('../assets/images/25.png'),
+];
+
+const CARD_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/33.png'),
+  require('../assets/images/34.png'),
+  require('../assets/images/35.png'),
+  require('../assets/images/36.png'),
+  require('../assets/images/37.png'),
+  require('../assets/images/38.png'),
+];
+
+const JUJUTSU_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/39.png'),
+  require('../assets/images/40.png'),
+  require('../assets/images/41.png'),
+  require('../assets/images/42.png'),
+  require('../assets/images/43.png'),
+  require('../assets/images/44.png'),
+];
+
+const MARVEL_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/45.png'),
+  require('../assets/images/46.png'),
+  require('../assets/images/47.png'),
+  require('../assets/images/48.png'),
+  require('../assets/images/49.png'),
+  require('../assets/images/50.png'),
+];
+
+const DC_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/51.png'),
+  require('../assets/images/52.png'),
+  require('../assets/images/53.png'),
+  require('../assets/images/54.png'),
+  require('../assets/images/55.png'),
+  require('../assets/images/56.png'),
+];
+
+const POCOYO_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/57.png'),
+  require('../assets/images/58.png'),
+  require('../assets/images/59.png'),
+  require('../assets/images/60.png'),
+  require('../assets/images/61.png'),
+  require('../assets/images/62.png'),
+];
+
+const FOOD_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/63.png'),
+  require('../assets/images/64.png'),
+  require('../assets/images/65.png'),
+  require('../assets/images/66.png'),
+  require('../assets/images/67.png'),
+  require('../assets/images/68.png'),
+];
+
+const SINGER_BLOCK_IMAGES: BlockImageSource[] = [
+  require('../assets/images/69.png'),
+  require('../assets/images/70.png'),
+  require('../assets/images/71.png'),
+  require('../assets/images/72.png'),
+  require('../assets/images/73.png'),
+  require('../assets/images/74.png'),
+];
 
 export const BLOKITO_THEMES: BlokitoTheme[] = [
   {
@@ -114,6 +226,7 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: POKEMON_BLOCK_IMAGES,
     blockIcon: 'local-florist',
     musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
     musicTitle: 'Jardim tranquilo',
@@ -139,8 +252,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: EMOJI_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('@/assets/sounds/Emojis.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -164,8 +278,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: MINECRAFT_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('@/assets/sounds/Mine.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -189,8 +304,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: CAT_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('../assets/sounds/Meaw-meaw-triste.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -214,8 +330,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: SPONGEBOB_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('../assets/sounds/Bob-esponja.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -239,8 +356,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: CARD_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('../assets/sounds/Naipes.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -264,8 +382,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: JUJUTSU_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('../assets/sounds/JJK.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -289,8 +408,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: MARVEL_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('../assets/sounds/Vingadores.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -314,8 +434,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: DC_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('../assets/sounds/DC.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -339,8 +460,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: SINGER_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('../assets/sounds/cantores.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -364,8 +486,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: FOOD_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('../assets/sounds/Comidas.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
@@ -389,8 +512,9 @@ export const BLOKITO_THEMES: BlokitoTheme[] = [
     emptyCellDark: '#16251C',
     trayBackground: '#F7FCEE',
     blockImage: 'leaf',
+    blockImages: POCOYO_BLOCK_IMAGES,
     blockIcon: 'local-florist',
-    musicSource: require('../assets/sounds/pokemon_song_theme.mp3'),
+    musicSource: require('../assets/sounds/Pocoyo.mp3'),
     musicTitle: 'Jardim tranquilo',
     palette: [
       { color: '#16A34A', glow: '#BBF7D0' },
